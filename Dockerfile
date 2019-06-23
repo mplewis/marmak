@@ -42,7 +42,7 @@ WORKDIR /scripts
 # Install Node dependencies
 COPY scripts/package.json /scripts/package.json
 COPY scripts/yarn.lock /scripts/yarn.lock
-RUN yarn install
+RUN yarn install --production
 
 # Copy everything else
 COPY scripts /scripts
