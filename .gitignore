@@ -1,4 +1,9 @@
+node_modules
+yarn-error.log
+
+# built
+dist
+
 # binary
 apisrv/apisrv
 apisrv/test/test
-scripts/node_modules
