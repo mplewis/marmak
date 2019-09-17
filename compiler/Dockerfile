@@ -4,47 +4,38 @@ WORKDIR /build
 # https://serverfault.com/a/846989/319473
 RUN ln -fs /usr/share/zoneinfo/America/Denver /etc/localtime
 
-# Install Python
 RUN apt-get update
-RUN apt-get install -y python2.7 python-pip
-
-# Install Node.js 12 and Yarn
-RUN apt-get install -y curl
+RUN apt-get install -y curl python2.7 python-pip
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash
 RUN apt-get install -y nodejs
 RUN npm install --global yarn
+RUN pip install -U awscli platformio
 
-# Install PlatformIO and AWS CLI
-RUN pip install -U awscli
-# RUN pip install -U platformio
+RUN mkdir -p /build/lib
+RUN mkdir -p /build/src
 
-# # Install AtmelAVR and U8glib
-# RUN mkdir -p /build/lib
-# RUN mkdir -p /build/src
-# COPY cache_helpers/platformio.ini /build
-# RUN platformio platform install atmelavr
-# RUN platformio lib install 7
+RUN platformio platform install atmelavr
+# U8glib
+RUN platformio lib --global install 7
 
-# # Add TH3D Marlin source
-# COPY TH3D-Unified-U1.R2/TH3DUF_R2 /build/src
+COPY TH3D-Unified-U1.R2/TH3DUF_R2 /build/src
 
-# # First run: installing Arduino framework, caching most built files
-# COPY cache_helpers/Configuration.h /build/src
-# RUN platformio run
+# First run: installing Arduino framework, caching most built files
+COPY cache_helpers/platformio.ini /build
+COPY cache_helpers/Configuration.h /build/src
+RUN platformio run
+# Cleanup files used as params for the real run
+RUN rm /build/src/Configuration.h /build/platformio.ini
 
-# # Cleanup files used as params for the real run
-# RUN rm /build/src/Configuration.h /build/platformio.ini
+RUN mkdir /server
+WORKDIR /server
 
-# Where the magic happens
-RUN mkdir /scripts
-WORKDIR /scripts
+COPY server/package.json .
+COPY server/yarn.lock .
+RUN yarn install
 
-# Install Node dependencies
-COPY scripts/package.json /scripts/package.json
-COPY scripts/yarn.lock /scripts/yarn.lock
-RUN yarn install --production
+COPY server /server
+RUN yarn compile
 
-# Copy everything else
-COPY scripts /scripts
-
-CMD yarn start
+ENTRYPOINT ["yarn"]
+CMD ["start"]

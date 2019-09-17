@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "ts-node src/run.ts",
-    "build": "tsc"
+    "start": "node dist/run.js",
+    "compile": "tsc"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
