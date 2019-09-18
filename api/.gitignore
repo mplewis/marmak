@@ -1,4 +1,5 @@
 .aws-sam
 .bundle/config
-src/vendor/bundle
+creds.json
 packaged.yaml
+src/vendor/bundle
